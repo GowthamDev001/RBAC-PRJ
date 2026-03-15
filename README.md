@@ -128,7 +128,7 @@ Example:
 ```
 PORT=8000
 AES_SECRET=ackrock-secret
-JWT_SECRET=super-secret-token
+JWT_SECRET=***
 ```
 
 ---
