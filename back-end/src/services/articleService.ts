@@ -4,15 +4,18 @@ export const createArticleService = async (
   title: string,
   content: string,
   status: string,
-  author_id: string
+  author_id: string,
+  category_id: string
 ) => {
 
   return await articleModel.createArticle(
     title,
     content,
     author_id,
+    category_id,
     status
   )
+
 
 }
 
@@ -37,13 +40,15 @@ export const updateArticleService = async (
   id: string,
   title: string,
   content: string,
-  status: string
+  status: string,
+  category_id: string
 ) => {
 
   return await articleModel.updateArticle(
     id,
     title,
     content,
+    category_id,
     status
   )
 

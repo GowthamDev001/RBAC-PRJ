@@ -20,7 +20,7 @@ const initialState: ArticleState = {
 
 export const createArticle = createAsyncThunk(
   "articles/create",
-  async (data: { title: string; content: string ; status: string }, { rejectWithValue }) => {
+  async (data: { title: string; content: string ; status: string ,category_id :string }, { rejectWithValue }) => {
     try {
       const res = await createArticleApi(data)
       return res
@@ -45,7 +45,7 @@ export const getArticles = createAsyncThunk(
 export const updateArticle = createAsyncThunk(
   "articles/update",
   async (
-    data: { id: string; title: string; content: string ; status: string },
+    data: { id: string; title: string; content: string ; status: string ,category_id :string },
     { rejectWithValue }
   ) => {
     try {

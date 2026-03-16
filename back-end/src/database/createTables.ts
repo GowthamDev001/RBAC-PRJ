@@ -149,7 +149,7 @@ ON CONFLICT (role_name) DO NOTHING;
         REFERENCES ackrock.articles(id)
         ON DELETE CASCADE,
 
-        user_id VARCHAR(36)
+        author_id VARCHAR(36)
         REFERENCES ackrock.users(id)
         ON DELETE CASCADE,
 
@@ -176,7 +176,7 @@ ON CONFLICT (role_name) DO NOTHING;
     `)
 
 
-    console.log("✅ Database tables created successfully")
+    console.log("Database tables created successfully")
 
   } catch (error) {
 

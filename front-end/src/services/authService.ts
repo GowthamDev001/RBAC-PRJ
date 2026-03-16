@@ -1,5 +1,5 @@
-import { apiClient } from "./apiClient"
-import { API_PATHS } from "./apiConfig"
+import { apiClient } from "../config/apiClient"
+import { API_PATHS } from "../config/apiConfig"
 import { LoginPayload, RegisterPayload } from "@/types/auth"
 
 export const loginApi = async (data: LoginPayload) => {

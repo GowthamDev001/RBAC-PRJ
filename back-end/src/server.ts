@@ -4,7 +4,11 @@ import dotenv from "dotenv"
 import { connectDb } from "./config/connectDb"
 import authRoutes from "./routes/authRoutes"
 import articleRoutes from "./routes/articleRoutes"
+import roleRoutes from "./routes/roleRoutes"
+import categoryRoutes from "./routes/categoryRoutes"
+import reviewRoutes from "./routes/reviewRoutes"
 import { createTables } from "./database/createTables"
+
 
 dotenv.config()
 
@@ -26,6 +30,9 @@ app.get("/", (req, res) => {
 // Routes
 app.use("/api/auth", authRoutes)
 app.use("/api/articles", articleRoutes)
+app.use("/api/roles", roleRoutes)
+app.use("/api/categories", categoryRoutes)
+app.use("/api/reviews", reviewRoutes)
 
 const PORT = process.env.PORT || 8000
 

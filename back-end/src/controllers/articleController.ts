@@ -2,17 +2,20 @@ import { Request, Response } from "express"
 import * as articleService from "../services/articleService"
 
 export const createArticle = async (req: any, res: Response) => {
-
   try {
 
-    const { title, content, status } = req.body
+    const { title, content, status, category_id } = req.body
     const author_id = req.user.id
+
+    // take first value from array
+    const categoryId = Array.isArray(category_id) ? category_id[0] : category_id
 
     const article = await articleService.createArticleService(
       title,
       content,
       status || "draft",
-      author_id
+      author_id,
+      categoryId
     )
 
     res.json(article)
@@ -24,9 +27,7 @@ export const createArticle = async (req: any, res: Response) => {
     })
 
   }
-
 }
-
 
 export const getArticles = async (req: Request, res: Response) => {
 
@@ -71,13 +72,14 @@ export const updateArticle = async (req: Request, res: Response) => {
 
   try {
 
-    const { title, content, status } = req.body
+    const { title, content, status, category_id } = req.body
 
     const article = await articleService.updateArticleService(
       req.params.id as string,
       title,
       content,
-      status
+      status,
+      category_id
     )
 
     res.json(article)
@@ -98,7 +100,7 @@ export const deleteArticle = async (req: Request, res: Response) => {
   try {
 
     await articleService.deleteArticleService(
-        req.params.id as string,
+      req.params.id as string,
     )
 
     res.json({

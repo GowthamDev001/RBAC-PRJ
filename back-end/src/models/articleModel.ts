@@ -5,15 +5,18 @@ export const createArticle = async (
   title: string,
   content: string,
   author_id: string,
+  category_id: string,
   status: string
 ) => {
 
   const result = await pool.query(
-    `INSERT INTO ${TABLES.ARTICLES}
-     (title,content,author_id,status)
-     VALUES($1,$2,$3,$4)
-     RETURNING *`,
-    [title, content, author_id, status]
+    `
+  INSERT INTO ackrock.articles
+  (title, content, status, category_id, author_id)
+  VALUES ($1, $2, $3, $4, $5)
+  RETURNING *
+  `,
+    [title, content, status, category_id, author_id]
   )
 
   return result.rows[0]
@@ -35,24 +38,26 @@ export const updateArticle = async (
   id: string,
   title: string,
   content: string,
+  category_id: string,
   status: string
 ) => {
-
 
   const result = await pool.query(
     `UPDATE ${TABLES.ARTICLES}
      SET title = $1,
          content = $2,
-         status = $3,
+         category_id = $3,
+         status = $4,
          updated_at = CURRENT_TIMESTAMP
-     WHERE id = $4
+     WHERE id = $5
      RETURNING *`,
-    [title, content, status, id]
+    [title, content, category_id, status, id]
   )
 
   return result.rows[0]
 
 }
+
 export const deleteArticle = async (id: string) => {
 
   const result = await pool.query(

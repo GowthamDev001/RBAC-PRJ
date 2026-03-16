@@ -9,7 +9,8 @@ export interface Article {
 
 export interface CreateArticlePayload {
   title: string
-  content: string
+  content: string,
+  category_id:string,
 }
 
 export interface UpdateArticlePayload {
