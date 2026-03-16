@@ -50,6 +50,7 @@ import { useUpdateArticle } from "@/hooks/articles/useUpdateArticle"
 import { useDeleteArticle } from "@/hooks/articles/useDeleteArticle"
 
 import CustomScrollbar from "@/utils/CustomScrollbar"
+import { showError, showSuccess } from "@/utils/notification"
 
 type Status = "published" | "draft"
 
@@ -153,7 +154,6 @@ function CategorySelect({
 }
 
 
-// ─── Form Fields ──────────────────────────────────────────────────────────────
 
 function FormFields({
   title,
@@ -247,13 +247,26 @@ export default function ArticlesPage() {
 
   const handleDelete = (id: string) => {
     if (!canDelete) return
+
     deleteArticleMutation.mutate(id, {
-      onSuccess: () => setDeleteId(null),
+      onSuccess: (res: any) => {
+        showSuccess(res?.message || "Article deleted successfully")
+        setDeleteId(null)
+      },
+
+      onError: (err: any) => {
+        showError(
+          err?.response?.data?.message ||
+          err?.message ||
+          "Failed to delete article"
+        )
+      },
     })
   }
 
   const handleEdit = (article: any) => {
     if (!canUpdate) return
+
     setEditArticle(article)
     setTitle(article.title)
     setContent(article.content)
@@ -264,12 +277,32 @@ export default function ArticlesPage() {
 
   const handleUpdate = () => {
     if (!canUpdate || !editArticle) return
+
+    if (!title.trim()) {
+      showError("Title is required")
+      return
+    }
+
+    if (!categoryId) {
+      showError("Category is required")
+      return
+    }
+
     updateArticleMutation.mutate(
       { id: editArticle.id, title, content, status, category_id: categoryId },
       {
-        onSuccess: () => {
+        onSuccess: (res: any) => {
+          showSuccess(res?.message)
           setEditOpen(false)
           resetForm()
+        },
+
+        onError: (err: any) => {
+          showError(
+            err?.response?.data?.message ||
+            err?.message ||
+            "Failed to update article"
+          )
         },
       }
     )
@@ -277,15 +310,32 @@ export default function ArticlesPage() {
 
   const handleCreate = () => {
     if (!canCreate) return
+
+    if (!title.trim()) {
+      showError("Title is required")
+      return
+    }
+
+    if (!categoryId) {
+      showError("Category is required")
+      return
+    }
+
     createArticleMutation.mutate(
       { title, content, status, category_id: categoryId },
       {
-        onSuccess: () => {
+        onSuccess: (res: any) => {
+          showSuccess(res?.message)
           setCreateOpen(false)
           resetForm()
         },
+
         onError: (err: any) => {
-          alert(err?.message || "Failed to create article")
+          showError(
+            err?.response?.data?.message ||
+            err?.message ||
+            "Failed to create article"
+          )
         },
       }
     )
@@ -349,7 +399,7 @@ export default function ArticlesPage() {
 
         <CustomScrollbar style={{ height: "calc(100vh - 150px)" }}>
 
-  
+
           {isLoading && (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {Array.from({ length: 6 }).map((_, i) => (
@@ -434,7 +484,7 @@ export default function ArticlesPage() {
             </div>
           )}
 
-         
+
           {!isLoading && filtered.length === 0 && (
             <div className="flex flex-col items-center justify-center py-20 text-white/20">
               <Search className="w-8 h-8 mb-3" />
@@ -445,7 +495,7 @@ export default function ArticlesPage() {
         </CustomScrollbar>
       </div>
 
-  
+
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
         <DialogContent className="bg-[#13151f]">
           <DialogHeader>
@@ -477,7 +527,7 @@ export default function ArticlesPage() {
         </DialogContent>
       </Dialog>
 
-  
+
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
         <DialogContent className="bg-[#13151f]">
           <DialogHeader>

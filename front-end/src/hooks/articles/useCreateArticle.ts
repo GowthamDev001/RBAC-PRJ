@@ -12,7 +12,6 @@ export const useCreateArticle = () => {
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["articles"] })
-      showSuccess("Article created successfully")
     },
 
     onError: (err: any) => {

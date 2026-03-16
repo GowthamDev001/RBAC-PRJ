@@ -36,7 +36,8 @@ import {
   Search,
   MoreHorizontal,
   ArrowLeft,
-  Folder
+  Folder,
+  AlertTriangle,
 } from "lucide-react"
 
 export default function CategoriesPage() {
@@ -53,6 +54,7 @@ export default function CategoriesPage() {
 
   const [createOpen, setCreateOpen] = useState(false)
   const [editOpen, setEditOpen] = useState(false)
+  const [deleteOpen, setDeleteOpen] = useState(false)   // ✅ NEW: delete dialog state
   const [deleteId, setDeleteId] = useState<string | null>(null)
 
   const [editCategory, setEditCategory] = useState<any>(null)
@@ -87,15 +89,25 @@ export default function CategoriesPage() {
     dispatch(updateCategory({
       id: editCategory.id,
       name,
-      description
+      description,
     }))
     resetForm()
     setEditOpen(false)
   }
 
-  const handleDelete = (id: string) => {
-    dispatch(deleteCategory(id))
+  // ✅ FIXED: open delete dialog instead of deleting directly
+  const handleDeleteClick = (id: string) => {
+    setDeleteId(id)
+    setDeleteOpen(true)
+  }
+
+  // ✅ FIXED: confirm delete handler
+  const handleDeleteConfirm = () => {
+    if (deleteId) {
+      dispatch(deleteCategory(deleteId))
+    }
     setDeleteId(null)
+    setDeleteOpen(false)
   }
 
   const filtered = (categories ?? []).filter((c: any) =>
@@ -105,12 +117,11 @@ export default function CategoriesPage() {
   return (
     <div className="min-h-screen bg-[#0f1117] text-white">
 
-     
+      {/* Header */}
       <div className="sticky top-0 bg-[#0f1117]/80 backdrop-blur border-b border-white/5 px-6 py-4 z-10">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
 
           <div className="flex items-center gap-3">
-
             <Button
               variant="ghost"
               size="icon"
@@ -126,7 +137,6 @@ export default function CategoriesPage() {
                 {(categories ?? []).length} total
               </p>
             </div>
-
           </div>
 
           {canCreate && (
@@ -142,10 +152,10 @@ export default function CategoriesPage() {
         </div>
       </div>
 
-  
+      {/* Main Content */}
       <div className="max-w-6xl mx-auto px-6 py-8 space-y-6">
 
-  
+        {/* Search */}
         <div className="relative">
           <Search className="absolute left-3 top-3 w-4 h-4 text-white/30" />
           <Input
@@ -156,40 +166,29 @@ export default function CategoriesPage() {
           />
         </div>
 
-      
+        {/* Grid */}
         {filtered.length > 0 && (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-
             {filtered.map((category: any) => (
-
               <Card
                 key={category.id}
                 className="bg-[#13151f] border border-white/5 hover:border-white/10 transition-colors"
               >
-
                 <CardHeader className="flex flex-row items-start justify-between pb-2 pt-5 px-5">
-
                   <div className="flex items-center gap-2.5">
-
                     <div className="w-8 h-8 rounded-lg bg-violet-500/15 flex items-center justify-center flex-shrink-0">
                       <Folder className="w-4 h-4 text-violet-400" />
                     </div>
-
                     <div>
                       <CardTitle className="text-sm font-semibold text-white leading-tight">
                         {category.name}
                       </CardTitle>
-
-                      <p className="text-[11px] text-white/30 mt-0.5">
-                        Category
-                      </p>
+                      <p className="text-[11px] text-white/30 mt-0.5">Category</p>
                     </div>
-
                   </div>
 
                   {(canUpdate || canDelete) && (
                     <DropdownMenu>
-
                       <DropdownMenuTrigger asChild>
                         <Button
                           size="icon"
@@ -201,7 +200,6 @@ export default function CategoriesPage() {
                       </DropdownMenuTrigger>
 
                       <DropdownMenuContent className="bg-[#1a1d2a] border border-white/10 text-white shadow-xl">
-
                         {canUpdate && (
                           <DropdownMenuItem
                             onClick={() => handleEdit(category)}
@@ -214,59 +212,47 @@ export default function CategoriesPage() {
 
                         {canDelete && (
                           <DropdownMenuItem
-                            onClick={() => setDeleteId(category.id)}
+                            onClick={() => handleDeleteClick(category.id)}  // ✅ FIXED
                             className="hover:bg-red-500/10 cursor-pointer text-red-400"
                           >
                             <Trash2 className="w-4 h-4 mr-2" />
                             Delete
                           </DropdownMenuItem>
                         )}
-
                       </DropdownMenuContent>
-
                     </DropdownMenu>
                   )}
-
                 </CardHeader>
 
                 <CardContent className="px-5 pb-5 text-sm text-white/50">
                   {category.description || "No description"}
                 </CardContent>
-
               </Card>
-
             ))}
-
           </div>
         )}
 
-      
+        {/* Empty State */}
         {filtered.length === 0 && (
           <div className="flex flex-col items-center justify-center py-24 text-center">
             <div className="w-12 h-12 rounded-xl bg-violet-500/10 flex items-center justify-center mb-4">
               <Folder className="w-6 h-6 text-violet-400" />
             </div>
             <p className="text-white/40 text-sm">No categories found</p>
-            <p className="text-white/20 text-xs mt-1">
-              Create your first category
-            </p>
+            <p className="text-white/20 text-xs mt-1">Create your first category</p>
           </div>
         )}
 
       </div>
 
-     
+      {/* ── Create Dialog ── */}
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
         <DialogContent className="bg-[#13151f] border border-white/10">
-
           <DialogHeader>
-            <DialogTitle className="text-white">
-              Create Category
-            </DialogTitle>
+            <DialogTitle className="text-white">Create Category</DialogTitle>
           </DialogHeader>
 
           <div className="space-y-4">
-
             <div>
               <Label className="text-xs text-white/60">Name</Label>
               <Input
@@ -275,7 +261,6 @@ export default function CategoriesPage() {
                 className="bg-[#0f1117] border-white/10"
               />
             </div>
-
             <div>
               <Label className="text-xs text-white/60">Description</Label>
               <Input
@@ -284,11 +269,9 @@ export default function CategoriesPage() {
                 className="bg-[#0f1117] border-white/10"
               />
             </div>
-
           </div>
 
           <DialogFooter>
-
             <Button
               variant="ghost"
               onClick={() => setCreateOpen(false)}
@@ -296,16 +279,89 @@ export default function CategoriesPage() {
             >
               Cancel
             </Button>
-
             <Button
               onClick={handleCreate}
               className="bg-violet-500 hover:bg-violet-400"
             >
               Create Category
             </Button>
-
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
+      {/* ── Edit Dialog ── ✅ FIXED: was missing entirely */}
+      <Dialog open={editOpen} onOpenChange={(open) => { setEditOpen(open); if (!open) resetForm() }}>
+        <DialogContent className="bg-[#13151f] border border-white/10">
+          <DialogHeader>
+            <DialogTitle className="text-white">Edit Category</DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div>
+              <Label className="text-xs text-white/60">Name</Label>
+              <Input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="bg-[#0f1117] border-white/10"
+              />
+            </div>
+            <div>
+              <Label className="text-xs text-white/60">Description</Label>
+              <Input
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                className="bg-[#0f1117] border-white/10"
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="ghost"
+              onClick={() => { setEditOpen(false); resetForm() }}
+              className="text-white/50 hover:text-white"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleUpdate}
+              className="bg-violet-500 hover:bg-violet-400"
+            >
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Delete Confirmation Dialog ── ✅ FIXED: was missing entirely */}
+      <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <DialogContent className="bg-[#13151f] border border-white/10">
+          <DialogHeader>
+            <DialogTitle className="text-white flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5 text-red-400" />
+              Delete Category
+            </DialogTitle>
+          </DialogHeader>
+
+          <p className="text-sm text-white/50">
+            Are you sure you want to delete this category? This action cannot be undone.
+          </p>
+
+          <DialogFooter>
+            <Button
+              variant="ghost"
+              onClick={() => { setDeleteOpen(false); setDeleteId(null) }}
+              className="text-white/50 hover:text-white"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleDeleteConfirm}
+              className="bg-red-500 hover:bg-red-400 text-white"
+            >
+              Delete
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 

@@ -16,7 +16,6 @@ export const useUpdateArticle = () => {
         queryKey: ["articles"]
       })
 
-      showSuccess("Article updated")
 
     },
 

@@ -16,7 +16,6 @@ export const useDeleteArticle = () => {
         queryKey: ["articles"]
       })
 
-      showSuccess("Article deleted")
 
     },
 
