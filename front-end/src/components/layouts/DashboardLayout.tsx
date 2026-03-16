@@ -20,12 +20,13 @@ import { ThemeToggle } from "@/components/themes/theme-toggle"
 import { useSelector } from "react-redux"
 import { useState } from "react"
 
+
 const NAV_ITEMS = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/articles", label: "Articles", icon: FileText },
   { to: "/profile", label: "Profile", icon: User },
-  { to: "/roles", label: "Role", icon: UserStarIcon },
-  { to: "/category", label: "Category", icon: Tags },
+  { to: "/roles", label: "Role", icon: UserStarIcon, adminOnly: true },
+  { to: "/category", label: "Category", icon: Tags, adminOnly: true },
 ]
 
 export default function DashboardLayout() {
@@ -70,28 +71,37 @@ export default function DashboardLayout() {
           <p className="px-2 text-[10px] font-semibold uppercase tracking-widest text-white/30 mb-3">
             Menu
           </p>
-          {NAV_ITEMS.map(({ to, label, icon: Icon }) => {
-            const active = location.pathname === to
-            return (
-              <Link
-                key={to}
-                to={to}
-                onClick={() => setSidebarOpen(false)}
-                className={`
-                  flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors
-                  ${active
-                    ? "bg-violet-500/15 text-violet-400"
-                    : "text-white/50 hover:text-white hover:bg-white/5"}
-                `}
-              >
-                <Icon className="w-4 h-4 flex-shrink-0" />
-                {label}
-                {active && (
-                  <ChevronRight className="w-3.5 h-3.5 ml-auto text-violet-400" />
-                )}
-              </Link>
-            )
-          })}
+          {NAV_ITEMS
+            .filter((item) => {
+              if (item.adminOnly) {
+                return user?.role?.name === "Admin"
+              }
+              return true
+            })
+            .map(({ to, label, icon: Icon }) => {
+              const active = location.pathname === to
+
+              return (
+                <Link
+                  key={to}
+                  to={to}
+                  onClick={() => setSidebarOpen(false)}
+                  className={`
+          flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors
+          ${active
+                      ? "bg-violet-500/15 text-violet-400"
+                      : "text-white/50 hover:text-white hover:bg-white/5"}
+        `}
+                >
+                  <Icon className="w-4 h-4 flex-shrink-0" />
+                  {label}
+
+                  {active && (
+                    <ChevronRight className="w-3.5 h-3.5 ml-auto text-violet-400" />
+                  )}
+                </Link>
+              )
+            })}
         </nav>
 
         <Separator className="bg-white/5 my-4" />

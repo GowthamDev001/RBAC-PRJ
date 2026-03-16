@@ -1,5 +1,6 @@
 import { Request, Response } from "express"
 import * as articleService from "../services/articleService"
+import { sendSuccess, sendError } from "../utils/apiResponse"
 
 export const createArticle = async (req: any, res: Response) => {
   try {
@@ -7,8 +8,9 @@ export const createArticle = async (req: any, res: Response) => {
     const { title, content, status, category_id } = req.body
     const author_id = req.user.id
 
-    // take first value from array
-    const categoryId = Array.isArray(category_id) ? category_id[0] : category_id
+    const categoryId = Array.isArray(category_id)
+      ? category_id[0]
+      : category_id
 
     const article = await articleService.createArticleService(
       title,
@@ -18,13 +20,15 @@ export const createArticle = async (req: any, res: Response) => {
       categoryId
     )
 
-    res.json(article)
+    return sendSuccess(
+      res,
+      "Article created successfully",
+      article
+    )
 
   } catch (error: any) {
 
-    res.status(500).json({
-      message: error.message
-    })
+    return sendError(res, error.message)
 
   }
 }
@@ -35,18 +39,19 @@ export const getArticles = async (req: Request, res: Response) => {
 
     const articles = await articleService.getArticlesService()
 
-    res.json(articles)
+    return sendSuccess(
+      res,
+      "Articles fetched successfully",
+      articles
+    )
 
   } catch (error: any) {
 
-    res.status(500).json({
-      message: error.message
-    })
+    return sendError(res, error.message)
 
   }
 
 }
-
 
 export const getArticleById = async (req: Request, res: Response) => {
 
@@ -56,13 +61,15 @@ export const getArticleById = async (req: Request, res: Response) => {
       req.params.id as string
     )
 
-    res.json(article)
+    return sendSuccess(
+      res,
+      "Article fetched successfully",
+      article
+    )
 
   } catch (error: any) {
 
-    res.status(500).json({
-      message: error.message
-    })
+    return sendError(res, error.message)
 
   }
 
@@ -82,36 +89,37 @@ export const updateArticle = async (req: Request, res: Response) => {
       category_id
     )
 
-    res.json(article)
+    return sendSuccess(
+      res,
+      "Article updated successfully",
+      article
+    )
 
   } catch (error: any) {
 
-    res.status(500).json({
-      message: error.message
-    })
+    return sendError(res, error.message)
 
   }
 
 }
-
 
 export const deleteArticle = async (req: Request, res: Response) => {
 
   try {
 
     await articleService.deleteArticleService(
-      req.params.id as string,
+      req.params.id as string
     )
 
-    res.json({
-      message: "Article deleted successfully"
-    })
+    return sendSuccess(
+      res,
+      "Article deleted successfully",
+      null
+    )
 
   } catch (error: any) {
 
-    res.status(500).json({
-      message: error.message
-    })
+    return sendError(res, error.message)
 
   }
 

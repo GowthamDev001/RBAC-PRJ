@@ -10,13 +10,16 @@ export interface Article {
 export interface CreateArticlePayload {
   title: string
   content: string,
+  status: string,
   category_id:string,
 }
 
 export interface UpdateArticlePayload {
   id: string
   title: string
-  content: string
+  content: string,
+  status: string,
+  category_id:string,
 }
 
 export interface ArticleResponse {

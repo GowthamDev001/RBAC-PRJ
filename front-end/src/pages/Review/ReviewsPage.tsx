@@ -159,7 +159,6 @@ export default function ReviewsPage({ articleId }: any) {
 
       ))}
 
-      {/* EDIT */}
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
 
         <DialogContent>

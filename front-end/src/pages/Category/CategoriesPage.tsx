@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import { useSelector, useDispatch } from "react-redux"
+import { useNavigate } from "react-router-dom"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -33,12 +34,16 @@ import {
   Trash2,
   Pencil,
   Search,
-  MoreHorizontal
+  MoreHorizontal,
+  ArrowLeft,
+  Folder
 } from "lucide-react"
 
 export default function CategoriesPage() {
 
   const dispatch: any = useDispatch()
+  const navigate = useNavigate()
+
   const { categories } = useSelector((state: any) => state.categories)
   const user = useSelector((state: any) => state.auth.user)
 
@@ -58,7 +63,7 @@ export default function CategoriesPage() {
 
   useEffect(() => {
     dispatch(getCategories())
-  }, [])
+  }, [dispatch])
 
   const resetForm = () => {
     setName("")
@@ -66,145 +71,217 @@ export default function CategoriesPage() {
   }
 
   const handleCreate = () => {
-
-    dispatch(createCategory({
-      name,
-      description
-    }))
-
+    dispatch(createCategory({ name, description }))
     resetForm()
     setCreateOpen(false)
-
   }
 
   const handleEdit = (category: any) => {
-
     setEditCategory(category)
     setName(category.name)
     setDescription(category.description)
     setEditOpen(true)
-
   }
 
   const handleUpdate = () => {
-
     dispatch(updateCategory({
       id: editCategory.id,
       name,
       description
     }))
-
     resetForm()
     setEditOpen(false)
-
   }
 
   const handleDelete = (id: string) => {
-
     dispatch(deleteCategory(id))
     setDeleteId(null)
-
   }
 
-  const filtered = categories.filter((c: any) =>
+  const filtered = (categories ?? []).filter((c: any) =>
     c.name.toLowerCase().includes(search.toLowerCase())
   )
 
   return (
+    <div className="min-h-screen bg-[#0f1117] text-white">
 
-    <div className="p-8 space-y-6">
+     
+      <div className="sticky top-0 bg-[#0f1117]/80 backdrop-blur border-b border-white/5 px-6 py-4 z-10">
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
 
-      <div className="flex justify-between">
+          <div className="flex items-center gap-3">
 
-        <Input
-          placeholder="Search categories"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-72"
-        />
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate("/dashboard")}
+              className="text-white/50 hover:text-white"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
 
-        {canCreate && (
-          <Button onClick={() => setCreateOpen(true)}>
-            <Plus className="w-4 h-4 mr-1" />
-            New Category
-          </Button>
+            <div>
+              <h1 className="font-semibold">Categories</h1>
+              <p className="text-xs text-white/40">
+                {(categories ?? []).length} total
+              </p>
+            </div>
+
+          </div>
+
+          {canCreate && (
+            <Button
+              onClick={() => { resetForm(); setCreateOpen(true) }}
+              className="bg-violet-500 hover:bg-violet-400"
+            >
+              <Plus className="w-4 h-4 mr-1" />
+              New Category
+            </Button>
+          )}
+
+        </div>
+      </div>
+
+  
+      <div className="max-w-6xl mx-auto px-6 py-8 space-y-6">
+
+  
+        <div className="relative">
+          <Search className="absolute left-3 top-3 w-4 h-4 text-white/30" />
+          <Input
+            placeholder="Search categories..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-9 bg-[#13151f] border-white/5"
+          />
+        </div>
+
+      
+        {filtered.length > 0 && (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+
+            {filtered.map((category: any) => (
+
+              <Card
+                key={category.id}
+                className="bg-[#13151f] border border-white/5 hover:border-white/10 transition-colors"
+              >
+
+                <CardHeader className="flex flex-row items-start justify-between pb-2 pt-5 px-5">
+
+                  <div className="flex items-center gap-2.5">
+
+                    <div className="w-8 h-8 rounded-lg bg-violet-500/15 flex items-center justify-center flex-shrink-0">
+                      <Folder className="w-4 h-4 text-violet-400" />
+                    </div>
+
+                    <div>
+                      <CardTitle className="text-sm font-semibold text-white leading-tight">
+                        {category.name}
+                      </CardTitle>
+
+                      <p className="text-[11px] text-white/30 mt-0.5">
+                        Category
+                      </p>
+                    </div>
+
+                  </div>
+
+                  {(canUpdate || canDelete) && (
+                    <DropdownMenu>
+
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="text-white/30 hover:text-white -mt-1 -mr-1"
+                        >
+                          <MoreHorizontal className="w-4 h-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+
+                      <DropdownMenuContent className="bg-[#1a1d2a] border border-white/10 text-white shadow-xl">
+
+                        {canUpdate && (
+                          <DropdownMenuItem
+                            onClick={() => handleEdit(category)}
+                            className="hover:bg-white/5 cursor-pointer text-white/70 hover:text-white"
+                          >
+                            <Pencil className="w-4 h-4 mr-2 text-white/40" />
+                            Edit
+                          </DropdownMenuItem>
+                        )}
+
+                        {canDelete && (
+                          <DropdownMenuItem
+                            onClick={() => setDeleteId(category.id)}
+                            className="hover:bg-red-500/10 cursor-pointer text-red-400"
+                          >
+                            <Trash2 className="w-4 h-4 mr-2" />
+                            Delete
+                          </DropdownMenuItem>
+                        )}
+
+                      </DropdownMenuContent>
+
+                    </DropdownMenu>
+                  )}
+
+                </CardHeader>
+
+                <CardContent className="px-5 pb-5 text-sm text-white/50">
+                  {category.description || "No description"}
+                </CardContent>
+
+              </Card>
+
+            ))}
+
+          </div>
+        )}
+
+      
+        {filtered.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-24 text-center">
+            <div className="w-12 h-12 rounded-xl bg-violet-500/10 flex items-center justify-center mb-4">
+              <Folder className="w-6 h-6 text-violet-400" />
+            </div>
+            <p className="text-white/40 text-sm">No categories found</p>
+            <p className="text-white/20 text-xs mt-1">
+              Create your first category
+            </p>
+          </div>
         )}
 
       </div>
 
-      <div className="grid md:grid-cols-3 gap-4">
-
-        {filtered.map((category: any) => (
-
-          <Card key={category.id}>
-
-            <CardHeader className="flex flex-row justify-between">
-
-              <CardTitle className="text-sm">
-                {category.name}
-              </CardTitle>
-
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button size="icon" variant="ghost" className="text-white/30 hover:text-white -mt-1 -mr-1">
-                    <MoreHorizontal className="w-4 h-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="bg-[#1a1d2a] border border-white/10 text-white shadow-xl">
-                  <DropdownMenuItem
-                    onClick={() => handleEdit(category)}
-                    className="hover:bg-white/5 cursor-pointer text-white/70 hover:text-white"
-                  >
-                    <Pencil className="w-4 h-4 mr-2 text-white/40" />
-                    Edit
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => setDeleteId(category.id)}
-                    className="hover:bg-red-500/10 cursor-pointer text-red-400"
-                  >
-                    <Trash2 className="w-4 h-4 mr-2" />
-                    Delete
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-
-            </CardHeader>
-
-            <CardContent className="text-sm text-muted-foreground">
-
-              {category.description}
-
-            </CardContent>
-
-          </Card>
-
-        ))}
-
-      </div>
-
-      {/* CREATE */}
+     
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-        <DialogContent>
+        <DialogContent className="bg-[#13151f] border border-white/10">
 
           <DialogHeader>
-            <DialogTitle>Create Category</DialogTitle>
+            <DialogTitle className="text-white">
+              Create Category
+            </DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-3">
+          <div className="space-y-4">
 
             <div>
-              <Label>Name</Label>
+              <Label className="text-xs text-white/60">Name</Label>
               <Input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
+                className="bg-[#0f1117] border-white/10"
               />
             </div>
 
             <div>
-              <Label>Description</Label>
+              <Label className="text-xs text-white/60">Description</Label>
               <Input
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
+                className="bg-[#0f1117] border-white/10"
               />
             </div>
 
@@ -212,75 +289,19 @@ export default function CategoriesPage() {
 
           <DialogFooter>
 
-            <Button variant="ghost" onClick={() => setCreateOpen(false)}>
-              Cancel
-            </Button>
-
-            <Button onClick={handleCreate}>
-              Create
-            </Button>
-
-          </DialogFooter>
-
-        </DialogContent>
-      </Dialog>
-
-      {/* EDIT */}
-      <Dialog open={editOpen} onOpenChange={setEditOpen}>
-        <DialogContent>
-
-          <DialogHeader>
-            <DialogTitle>Edit Category</DialogTitle>
-          </DialogHeader>
-
-          <div className="space-y-3">
-
-            <Input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
-
-            <Input
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-            />
-
-          </div>
-
-          <DialogFooter>
-
-            <Button variant="ghost" onClick={() => setEditOpen(false)}>
-              Cancel
-            </Button>
-
-            <Button onClick={handleUpdate}>
-              Save
-            </Button>
-
-          </DialogFooter>
-
-        </DialogContent>
-      </Dialog>
-
-      {/* DELETE */}
-      <Dialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
-        <DialogContent>
-
-          <DialogHeader>
-            <DialogTitle>Delete Category?</DialogTitle>
-          </DialogHeader>
-
-          <DialogFooter>
-
-            <Button variant="ghost" onClick={() => setDeleteId(null)}>
+            <Button
+              variant="ghost"
+              onClick={() => setCreateOpen(false)}
+              className="text-white/50 hover:text-white"
+            >
               Cancel
             </Button>
 
             <Button
-              className="bg-red-500"
-              onClick={() => handleDelete(deleteId!)}
+              onClick={handleCreate}
+              className="bg-violet-500 hover:bg-violet-400"
             >
-              Delete
+              Create Category
             </Button>
 
           </DialogFooter>
@@ -289,6 +310,5 @@ export default function CategoriesPage() {
       </Dialog>
 
     </div>
-
   )
 }

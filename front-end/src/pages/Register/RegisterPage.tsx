@@ -114,35 +114,8 @@ export default function RegisterPage() {
             </div>
           </div>
 
-          <div
-            className={`flex items-center justify-between rounded-xl p-3.5 border transition-colors cursor-pointer
-              ${isAdmin
-                ? "bg-violet-500/10 border-violet-500/30"
-                : "bg-[#0f1117] border-white/10"
-              }`}
-            onClick={() => setIsAdmin(!isAdmin)}
-          >
-            <div className="flex items-center gap-2.5">
-              <ShieldCheck className={`w-4 h-4 ${isAdmin ? "text-violet-400" : "text-white/30"}`} />
-              <div>
-                <p className={`text-sm font-medium ${isAdmin ? "text-violet-300" : "text-white/60"}`}>
-                  Register as Admin
-                </p>
-                <p className="text-[10px] text-white/25">Full access to manage content</p>
-              </div>
-            </div>
-
-           
-            <div
-              className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors duration-200 flex-shrink-0
-                ${isAdmin ? "bg-violet-500" : "bg-white/10"}`}
-            >
-              <span
-                className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform duration-200
-                  ${isAdmin ? "translate-x-[18px]" : "translate-x-[3px]"}`}
-              />
-            </div>
-          </div>
+    
+          
 
           <Button
             type="submit"

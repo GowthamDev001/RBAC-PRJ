@@ -34,13 +34,6 @@ import {
 } from "@/components/ui/select"
 
 import {
-  deleteArticle,
-  updateArticle,
-  createArticle,
-  getArticles,
-} from "@/store/articleSlice"
-
-import {
   Pencil,
   Trash2,
   ArrowLeft,
@@ -50,8 +43,13 @@ import {
   MoreHorizontal,
 } from "lucide-react"
 import { getCategories } from "@/store/categorySlice"
+
+import { useArticles } from "@/hooks/articles/useArticles"
+import { useCreateArticle } from "@/hooks/articles/useCreateArticle"
+import { useUpdateArticle } from "@/hooks/articles/useUpdateArticle"
+import { useDeleteArticle } from "@/hooks/articles/useDeleteArticle"
+
 import CustomScrollbar from "@/utils/CustomScrollbar"
-import { showError, showSuccess } from "@/utils/notification"
 
 type Status = "published" | "draft"
 
@@ -192,7 +190,6 @@ function FormFields({
         />
       </div>
 
-      {/* Category only shown on Create */}
       {showCategory && (
         <CategorySelect
           categoryId={categoryId}
@@ -207,13 +204,17 @@ function FormFields({
 }
 
 
-// ─── Main Page ────────────────────────────────────────────────────────────────
+
 
 export default function ArticlesPage() {
   const dispatch: any = useDispatch()
   const navigate = useNavigate()
+  const { data, isLoading } = useArticles()
+  const articles = Array.isArray(data) ? data : (data?.data ?? data?.articles ?? [])
+  const createArticleMutation = useCreateArticle()
+  const updateArticleMutation = useUpdateArticle()
+  const deleteArticleMutation = useDeleteArticle()
 
-  const { articles, loading } = useSelector((state: any) => state.articles)
   const user = useSelector((state: any) => state.auth.user)
   const { categories } = useSelector((state: any) => state.categories)
 
@@ -233,10 +234,8 @@ export default function ArticlesPage() {
   const [categoryId, setCategoryId] = useState("")
 
   useEffect(() => {
-    dispatch(getArticles())
     dispatch(getCategories())
   }, [dispatch])
-
 
   const resetForm = () => {
     setTitle("")
@@ -245,10 +244,12 @@ export default function ArticlesPage() {
     setCategoryId("")
   }
 
+
   const handleDelete = (id: string) => {
     if (!canDelete) return
-    dispatch(deleteArticle(id))
-    setDeleteId(null)
+    deleteArticleMutation.mutate(id, {
+      onSuccess: () => setDeleteId(null),
+    })
   }
 
   const handleEdit = (article: any) => {
@@ -262,34 +263,32 @@ export default function ArticlesPage() {
   }
 
   const handleUpdate = () => {
-    if (!canUpdate) return
-    dispatch(updateArticle({ id: editArticle.id, title, content, status, category_id: categoryId }))
-    setEditOpen(false)
-    resetForm()
+    if (!canUpdate || !editArticle) return
+    updateArticleMutation.mutate(
+      { id: editArticle.id, title, content, status, category_id: categoryId },
+      {
+        onSuccess: () => {
+          setEditOpen(false)
+          resetForm()
+        },
+      }
+    )
   }
 
-  const handleCreate = async () => {
+  const handleCreate = () => {
     if (!canCreate) return
-
-    try {
-      const res = await dispatch(
-        createArticle({
-          title,
-          content,
-          status,
-          category_id: categoryId
-        })
-      ).unwrap()
-
-      showSuccess(res.message) 
-
-      dispatch(getArticles())
-
-      setCreateOpen(false)
-      resetForm()
-    } catch (err: any) {
-      showError(err || "Failed to create article")
-    }
+    createArticleMutation.mutate(
+      { title, content, status, category_id: categoryId },
+      {
+        onSuccess: () => {
+          setCreateOpen(false)
+          resetForm()
+        },
+        onError: (err: any) => {
+          alert(err?.message || "Failed to create article")
+        },
+      }
+    )
   }
 
   const openCreate = () => {
@@ -308,7 +307,6 @@ export default function ArticlesPage() {
   return (
     <div className="h-screen overflow-hidden bg-[#0f1117] text-white">
 
-      {/* ── Header ── */}
       <div className="sticky top-0 bg-[#0f1117]/80 backdrop-blur border-b border-white/5 px-6 py-4">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -323,7 +321,7 @@ export default function ArticlesPage() {
             <div>
               <h1 className="font-semibold">Articles</h1>
               <p className="text-xs text-white/40">
-                {loading ? "Loading..." : `${articles?.length ?? 0} total`}
+                {isLoading ? "Loading..." : `${articles?.length ?? 0} total`}
               </p>
             </div>
           </div>
@@ -337,11 +335,8 @@ export default function ArticlesPage() {
         </div>
       </div>
 
-      {/* ── Body ── */}
-
       <div className="max-w-6xl mx-auto px-6 py-8 space-y-6">
 
-        {/* Search */}
         <div className="relative">
           <Search className="absolute left-3 top-3 w-4 h-4 text-white/30" />
           <Input
@@ -351,9 +346,11 @@ export default function ArticlesPage() {
             className="pl-9 bg-[#13151f] border-white/5"
           />
         </div>
+
         <CustomScrollbar style={{ height: "calc(100vh - 150px)" }}>
-          {/* Skeleton Grid */}
-          {loading && (
+
+  
+          {isLoading && (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {Array.from({ length: 6 }).map((_, i) => (
                 <ArticleCardSkeleton key={i} />
@@ -361,8 +358,8 @@ export default function ArticlesPage() {
             </div>
           )}
 
-          {/* Articles Grid */}
-          {!loading && filtered.length > 0 && (
+
+          {!isLoading && filtered.length > 0 && (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {filtered.map((article: any) => {
                 const isDraft = article.status === "draft"
@@ -414,15 +411,11 @@ export default function ArticlesPage() {
                           {new Date(article.created_at).toLocaleDateString()}
                         </span>
                         <div className="flex gap-2">
-
-                          {/* CATEGORY TAG */}
                           {article.category_id && categoryMap[article.category_id] && (
                             <Badge className="bg-violet-500/10 text-violet-400">
                               {categoryMap[article.category_id]}
                             </Badge>
                           )}
-
-                          {/* STATUS TAG */}
                           <Badge
                             className={
                               isDraft
@@ -432,7 +425,6 @@ export default function ArticlesPage() {
                           >
                             {isDraft ? "Draft" : "Published"}
                           </Badge>
-
                         </div>
                       </div>
                     </CardContent>
@@ -442,18 +434,18 @@ export default function ArticlesPage() {
             </div>
           )}
 
-          {/* Empty State */}
-          {!loading && filtered.length === 0 && (
+         
+          {!isLoading && filtered.length === 0 && (
             <div className="flex flex-col items-center justify-center py-20 text-white/20">
               <Search className="w-8 h-8 mb-3" />
               <p className="text-sm">No articles found</p>
             </div>
           )}
-        </CustomScrollbar>
 
+        </CustomScrollbar>
       </div>
 
-      {/* ── Create Dialog ── */}
+  
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
         <DialogContent className="bg-[#13151f]">
           <DialogHeader>
@@ -473,14 +465,19 @@ export default function ArticlesPage() {
           />
           <DialogFooter>
             <Button variant="ghost" onClick={() => setCreateOpen(false)}>Cancel</Button>
-            <Button onClick={handleCreate}>
-              {status === "draft" ? "Save Draft" : "Publish"}
+            <Button
+              onClick={handleCreate}
+              disabled={createArticleMutation.isPending}
+            >
+              {createArticleMutation.isPending
+                ? "Saving..."
+                : status === "draft" ? "Save Draft" : "Publish"}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* ── Edit Dialog ── */}
+  
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
         <DialogContent className="bg-[#13151f]">
           <DialogHeader>
@@ -500,12 +497,16 @@ export default function ArticlesPage() {
           />
           <DialogFooter>
             <Button variant="ghost" onClick={() => setEditOpen(false)}>Cancel</Button>
-            <Button onClick={handleUpdate}>Save Changes</Button>
+            <Button
+              onClick={handleUpdate}
+              disabled={updateArticleMutation.isPending}
+            >
+              {updateArticleMutation.isPending ? "Saving..." : "Save Changes"}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* ── Delete Confirm Dialog ── */}
       <Dialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
         <DialogContent className="bg-[#13151f]">
           <DialogHeader>
@@ -516,8 +517,12 @@ export default function ArticlesPage() {
           </p>
           <DialogFooter>
             <Button variant="ghost" onClick={() => setDeleteId(null)}>Cancel</Button>
-            <Button onClick={() => handleDelete(deleteId!)} className="bg-red-500 hover:bg-red-400">
-              Delete
+            <Button
+              onClick={() => handleDelete(deleteId!)}
+              disabled={deleteArticleMutation.isPending}
+              className="bg-red-500 hover:bg-red-400"
+            >
+              {deleteArticleMutation.isPending ? "Deleting..." : "Delete"}
             </Button>
           </DialogFooter>
         </DialogContent>
