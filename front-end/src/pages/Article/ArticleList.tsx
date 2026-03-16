@@ -51,6 +51,7 @@ import {
 } from "lucide-react"
 import { getCategories } from "@/store/categorySlice"
 import CustomScrollbar from "@/utils/CustomScrollbar"
+import { showError, showSuccess } from "@/utils/notification"
 
 type Status = "published" | "draft"
 
@@ -267,33 +268,28 @@ export default function ArticlesPage() {
     resetForm()
   }
 
-  const handleCreate = () => {
+  const handleCreate = async () => {
     if (!canCreate) return
 
-    if (!title.trim()) {
-      alert("Title is required")
-      return
+    try {
+      const res = await dispatch(
+        createArticle({
+          title,
+          content,
+          status,
+          category_id: categoryId
+        })
+      ).unwrap()
+
+      showSuccess(res.message) 
+
+      dispatch(getArticles())
+
+      setCreateOpen(false)
+      resetForm()
+    } catch (err: any) {
+      showError(err || "Failed to create article")
     }
-
-    if (!content.trim()) {
-      alert("Content is required")
-      return
-    }
-
-    if (!categoryId) {
-      alert("Category is required")
-      return
-    }
-
-    dispatch(createArticle({
-      title,
-      content,
-      status,
-      category_id: categoryId
-    }))
-
-    setCreateOpen(false)
-    resetForm()
   }
 
   const openCreate = () => {
