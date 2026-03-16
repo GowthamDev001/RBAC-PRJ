@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit"
 import { loginApi, registerApi } from "@/services/authService"
 import { LoginPayload, RegisterPayload } from "@/types/auth"
+import { encryptData, decryptData } from "@/utils/storageCrypto"
 
 interface AuthState {
   user: any
@@ -8,8 +9,18 @@ interface AuthState {
   error: string | null
 }
 
+let storedUser = null
+
+try {
+  const encrypted = localStorage.getItem("user")
+  storedUser = encrypted ? decryptData(encrypted) : null
+} catch {
+  localStorage.removeItem("user")
+  storedUser = null
+}
+
 const initialState: AuthState = {
-  user: null,
+  user: storedUser,
   loading: false,
   error: null
 }
@@ -41,7 +52,13 @@ export const registerUser = createAsyncThunk(
 const authSlice = createSlice({
   name: "auth",
   initialState,
-  reducers: {},
+  reducers: {
+    logout: (state) => {
+      state.user = null
+      localStorage.removeItem("user")
+      localStorage.removeItem("token")
+    }
+  },
   extraReducers: (builder) => {
 
     builder.addCase(loginUser.pending, (state) => {
@@ -51,6 +68,12 @@ const authSlice = createSlice({
     builder.addCase(loginUser.fulfilled, (state, action) => {
       state.loading = false
       state.user = action.payload.user
+
+      const encryptedUser = encryptData(action.payload.user)
+      const encryptedToken = encryptData(action.payload.token)
+
+      localStorage.setItem("user", encryptedUser)
+      localStorage.setItem("token", encryptedToken)
     })
 
     builder.addCase(loginUser.rejected, (state, action) => {
@@ -61,4 +84,5 @@ const authSlice = createSlice({
   }
 })
 
+export const { logout } = authSlice.actions
 export default authSlice.reducer

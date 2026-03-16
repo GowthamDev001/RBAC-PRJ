@@ -8,7 +8,7 @@ import { Toaster } from "sonner"
 import { QueryClientProvider } from "@tanstack/react-query"
 import { queryClient } from "./utils/queryClient"
 
-import { ThemeProvider } from "@/components/theme-provider"
+import { ThemeProvider } from "@/components/themes/theme-provider"
 
 import { Provider } from "react-redux"
 import { store } from "@/store/store"

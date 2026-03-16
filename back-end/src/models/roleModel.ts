@@ -29,12 +29,20 @@ export const getRoles = async () => {
 }
 
 
-export const getRoleById = async (id: number) => {
+export const getRoleById = async (id: string) => {
 
   const result = await pool.query(
-    `SELECT role_name
-     FROM ${TABLES.ROLES}
-     WHERE id=$1 AND is_deleted=false`,
+    `
+    SELECT 
+      id,
+      role_name,
+      can_view,
+      can_create,
+      can_update,
+      can_delete
+    FROM ackrock.roles
+    WHERE id = $1
+    `,
     [id]
   )
 

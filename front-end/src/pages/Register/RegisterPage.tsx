@@ -54,10 +54,9 @@ export default function RegisterPage() {
   return (
     <div className="flex items-center justify-center min-h-screen bg-[#0f1117] px-4">
 
-      {/* Card */}
       <div className="w-full max-w-sm bg-[#13151f] border border-white/5 rounded-2xl p-8 shadow-xl">
 
-        {/* Logo */}
+        
         <div className="flex flex-col items-center mb-8">
           <div className="w-10 h-10 rounded-xl bg-violet-500 flex items-center justify-center mb-3">
             <BookOpen className="w-5 h-5 text-white" />
@@ -68,11 +67,11 @@ export default function RegisterPage() {
 
         <form onSubmit={handleSubmit} className="space-y-4" noValidate>
 
-          {/* Name */}
+        
           <div className="space-y-1.5">
             <Label className="text-xs font-medium text-white/60">Full Name</Label>
             <Input
-              placeholder="John Doe"
+              placeholder="User name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="bg-[#0f1117] border-white/10 text-white placeholder:text-white/20 rounded-xl h-10
@@ -80,7 +79,7 @@ export default function RegisterPage() {
             />
           </div>
 
-          {/* Email */}
+         
           <div className="space-y-1.5">
             <Label className="text-xs font-medium text-white/60">Email</Label>
             <Input
@@ -93,7 +92,7 @@ export default function RegisterPage() {
             />
           </div>
 
-          {/* Password */}
+          
           <div className="space-y-1.5">
             <Label className="text-xs font-medium text-white/60">Password</Label>
             <div className="relative">
@@ -115,7 +114,6 @@ export default function RegisterPage() {
             </div>
           </div>
 
-          {/* Admin Switch — FIXED */}
           <div
             className={`flex items-center justify-between rounded-xl p-3.5 border transition-colors cursor-pointer
               ${isAdmin
@@ -134,7 +132,7 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            {/* Custom switch — avoids shadcn theme conflicts */}
+           
             <div
               className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors duration-200 flex-shrink-0
                 ${isAdmin ? "bg-violet-500" : "bg-white/10"}`}
@@ -146,7 +144,6 @@ export default function RegisterPage() {
             </div>
           </div>
 
-          {/* Submit */}
           <Button
             type="submit"
             disabled={loading}

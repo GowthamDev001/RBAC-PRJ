@@ -17,27 +17,27 @@ export const loginService = async (
     throw new Error("User not found")
   }
 
-  // decrypt password
   const password = decryptPayload(encryptedPassword)
 
-  const isMatch = await comparePassword(
-    password,
-    user.password
-  )
+  const isMatch = await comparePassword(password, user.password)
 
   if (!isMatch) {
     throw new Error("Invalid password")
   }
 
-  // 🔹 get role name
   const role = await getRoleById(user.role_id)
 
-  // generate JWT
   const token = jwt.sign(
     {
       id: user.id,
-      role_id: user.role_id,
-      role_name: role.role_name
+      role: {
+        id: role.id,
+        name: role.role_name,
+        can_view: role.can_view,
+        can_create: role.can_create,
+        can_update: role.can_update,
+        can_delete: role.can_delete
+      }
     },
     process.env.JWT_SECRET || "secret",
     { expiresIn: "1d" }
@@ -45,8 +45,17 @@ export const loginService = async (
 
   return {
     user: {
-      ...user,
-      role_name: role.role_name
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: {
+        id: role.id,
+        name: role.role_name,
+        can_view: role.can_view,
+        can_create: role.can_create,
+        can_update: role.can_update,
+        can_delete: role.can_delete
+      }
     },
     token
   }

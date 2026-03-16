@@ -29,7 +29,7 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-[#0f1117] text-white">
 
-      {/* Topbar */}
+    
       <div className="sticky top-0 z-10 bg-[#0f1117]/80 backdrop-blur border-b border-white/5 px-4 sm:px-8 py-4">
         <div className="max-w-2xl mx-auto flex items-center gap-3">
           <Button
@@ -47,10 +47,10 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {/* Content */}
+      
       <div className="max-w-2xl mx-auto px-4 sm:px-8 py-10 space-y-4">
 
-        {/* Avatar card */}
+      
         <div className="bg-[#13151f] border border-white/5 rounded-2xl p-6 flex flex-col sm:flex-row items-center sm:items-start gap-5">
           <Avatar className="h-16 w-16 rounded-2xl bg-violet-500/20 text-violet-400 text-xl font-bold flex-shrink-0">
             <AvatarFallback className="bg-violet-500/20 text-violet-400 text-xl font-bold rounded-2xl">
@@ -68,13 +68,13 @@ export default function ProfilePage() {
                     : "bg-emerald-500/10 text-emerald-400"
                   }`}
               >
-                {user.role_name}
+                 {user?.role?.name}
               </Badge>
             </div>
           </div>
         </div>
 
-        {/* Info rows */}
+      
         <div className="bg-[#13151f] border border-white/5 rounded-2xl divide-y divide-white/5 overflow-hidden">
 
           <div className="flex items-center gap-4 px-5 py-4">
@@ -103,7 +103,9 @@ export default function ProfilePage() {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-[11px] text-white/30 uppercase tracking-wide font-medium">Role</p>
-              <p className="text-sm text-white font-medium mt-0.5">{user.role_name}</p>
+              <p className="text-sm text-white font-medium mt-0.5">
+                {user?.role?.name}
+              </p>
             </div>
           </div>
 

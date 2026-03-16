@@ -4,7 +4,7 @@ interface CreateUserDTO {
   name: string
   email: string
   password: string
-  role_id: string   // UUID
+  role_id: string 
 }
 
 export const createUserService = async (data: CreateUserDTO) => {

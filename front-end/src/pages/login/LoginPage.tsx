@@ -52,7 +52,7 @@ export default function LoginPage() {
 
       <div className="w-full max-w-sm bg-[#13151f] border border-white/5 rounded-2xl p-8 shadow-xl">
 
-        {/* Logo */}
+    
         <div className="flex flex-col items-center mb-8">
           <div className="w-10 h-10 rounded-xl bg-violet-500 flex items-center justify-center mb-3">
             <BookOpen className="w-5 h-5 text-white" />
@@ -63,7 +63,7 @@ export default function LoginPage() {
 
         <form onSubmit={handleSubmit} className="space-y-4" noValidate>
 
-          {/* Email */}
+      
           <div className="space-y-1.5">
             <Label htmlFor="email" className="text-xs font-medium text-white/60">
               Email
@@ -79,7 +79,7 @@ export default function LoginPage() {
             />
           </div>
 
-          {/* Password */}
+  
           <div className="space-y-1.5">
             <Label htmlFor="password" className="text-xs font-medium text-white/60">
               Password
@@ -104,7 +104,7 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* Submit */}
+        
           <Button
             type="submit"
             disabled={loading}
