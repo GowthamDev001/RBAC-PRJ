@@ -5,10 +5,13 @@ import {
   UpdateArticlePayload
 } from "@/types/article"
 
-export const getArticlesApi = async () => {
-  const response = await apiClient.get(API_PATHS.ARTICLE.GET_ALL)
-  return response.data
-}
+export const getArticlesApi = async (page = 1, limit = 6) => {
+  const response = await apiClient.get(API_PATHS.ARTICLE.GET_ALL, {
+    params: { page, limit },
+  });
+
+  return response.data.data;
+};
 
 export const getArticleByIdApi = async (id: string) => {
   const response = await apiClient.get(`${API_PATHS.ARTICLE.GET_BY_ID}/${id}`)

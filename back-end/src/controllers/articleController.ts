@@ -34,24 +34,18 @@ export const createArticle = async (req: any, res: Response) => {
 }
 
 export const getArticles = async (req: Request, res: Response) => {
-
   try {
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 6;
 
-    const articles = await articleService.getArticlesService()
+    const articles = await articleService.getArticlesService(page, limit);
 
-    return sendSuccess(
-      res,
-      "Articles fetched successfully",
-      articles
-    )
+    return sendSuccess(res, "Articles fetched successfully", articles);
 
   } catch (error: any) {
-
-    return sendError(res, error.message)
-
+    return sendError(res, error.message);
   }
-
-}
+};
 
 export const getArticleById = async (req: Request, res: Response) => {
 

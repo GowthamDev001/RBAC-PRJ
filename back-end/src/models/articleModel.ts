@@ -22,17 +22,37 @@ export const createArticle = async (
   return result.rows[0]
 }
 
-export const getArticles = async () => {
+export const getArticles = async (page: number, limit: number) => {
+  const offset = (page - 1) * limit;
 
-  const result = await pool.query(
-    `SELECT *
-     FROM ${TABLES.ARTICLES}
-     WHERE is_deleted=false
-     ORDER BY id DESC`
-  )
+  const dataQuery = `
+    SELECT *
+    FROM ${TABLES.ARTICLES}
+    WHERE is_deleted = false
+    ORDER BY id DESC
+    LIMIT $1 OFFSET $2
+  `;
 
-  return result.rows
-}
+  const countQuery = `
+    SELECT COUNT(*) 
+    FROM ${TABLES.ARTICLES}
+    WHERE is_deleted = false
+  `;
+
+  const [dataResult, countResult] = await Promise.all([
+    pool.query(dataQuery, [limit, offset]),
+    pool.query(countQuery),
+  ]);
+
+  const total = Number(countResult.rows[0].count);
+
+  return {
+    data: dataResult.rows,
+    total,
+    page,
+    totalPages: Math.ceil(total / limit),
+  };
+};
 
 export const updateArticle = async (
   id: string,

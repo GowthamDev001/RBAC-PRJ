@@ -209,8 +209,11 @@ function FormFields({
 export default function ArticlesPage() {
   const dispatch: any = useDispatch()
   const navigate = useNavigate()
-  const { data, isLoading } = useArticles()
-  const articles = Array.isArray(data) ? data : (data?.data ?? data?.articles ?? [])
+  const [page, setPage] = useState(1);
+  const limit = 6
+  const { data, isLoading } = useArticles(page, limit);
+  const articles = data?.data ?? [];
+  const totalPages = data?.totalPages ?? 1;
   const createArticleMutation = useCreateArticle()
   const updateArticleMutation = useUpdateArticle()
   const deleteArticleMutation = useDeleteArticle()
@@ -481,8 +484,38 @@ export default function ArticlesPage() {
                   </Card>
                 )
               })}
+
             </div>
           )}
+          <div className="flex justify-center mt-6 gap-2">
+
+            <Button
+              variant="outline"
+              disabled={page === 1}
+              onClick={() => setPage((prev) => prev - 1)}
+            >
+              Prev
+            </Button>
+
+            {Array.from({ length: totalPages }, (_, i) => (
+              <Button
+                key={i}
+                variant={page === i + 1 ? "default" : "outline"}
+                onClick={() => setPage(i + 1)}
+              >
+                {i + 1}
+              </Button>
+            ))}
+
+            <Button
+              variant="outline"
+              disabled={page === totalPages}
+              onClick={() => setPage((prev) => prev + 1)}
+            >
+              Next
+            </Button>
+
+          </div>
 
 
           {!isLoading && filtered.length === 0 && (

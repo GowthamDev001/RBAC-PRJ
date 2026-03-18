@@ -20,11 +20,9 @@ export const createArticleService = async (
 }
 
 
-export const getArticlesService = async () => {
-
-  return await articleModel.getArticles()
-
-}
+export const getArticlesService = async (page: number, limit: number) => {
+  return await articleModel.getArticles(page, limit);
+};
 
 
 
